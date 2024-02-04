@@ -1006,22 +1006,6 @@ function loadAltStyle() {
 	$('head').append('<link rel="stylesheet" type="text/css" href="css/noimages.css">');
 }
 
-function setColorblindMode(isColorblindMode) {
-	var stylesheetId = 'colorblind-styles';
-
-	if (isColorblindMode) {
-		if (!$('#colorblind-styles').length) {
-			$('head').append('<link id="' + stylesheetId + '" rel="stylesheet" type="text/css" href="css/colorblind.css">');
-		}
-	} else {
-		$('#' + stylesheetId).remove();
-	}
-
-	if (useLocalStorage) {
-		localStorage.shenzhen_colorblind = isColorblindMode;
-	}
-}
-
 /**
  * Creates a stack of all cards including and stacked on top of the given card.
  * @param  {HTMLElement} cardElement The element for the card.
@@ -1096,18 +1080,6 @@ $(document).ready(function () {
 		$('#playMusicButton').show();
 		$('#pauseMusicButton').hide();
 	});
-
-	$('#toggleColorblind').change(function (event) {
-		setColorblindMode(event.target.checked);
-	});
-
-	// When the alt style
-	if (useLocalStorage) {
-		if (localStorage.shenzhen_colorblind !== undefined && JSON.parse(localStorage.shenzhen_colorblind) === true) {
-			$('#toggleColorblind').prop('checked', true);
-			setColorblindMode(true);
-		}
-	}
 
 	// Make the cards interactable
 	$('.slot').droppable({
