@@ -22,11 +22,6 @@ body {
 	}
 }
 
-/* the canary indicates whether we can load images */
-#canary {
-	visibility: hidden;
-}
-
 #board {
 	margin-left: auto;
 	margin-right: auto;
@@ -223,11 +218,6 @@ button, .btn-dragon, .bottom-button, .bottom-button * {
 
 .bottom-button:hover {
 	background-image: url(../assets/button_bottom_hover.png);
-}
-
-#image_load_error {
-	color: orange;
-	font-size: 1.5em;
 }
 
 .card-logo-display {

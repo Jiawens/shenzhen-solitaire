@@ -9,12 +9,6 @@ var useLocalStorage = (typeof localStorage !== 'undefined');
 var DEBUG = false;
 
 /**
- * if true, the alternate stylesheet is loaded even if images load correctly.
- * @type {Boolean}
- */
-var DEBUG_STYLE = false;
-
-/**
  * Time in milliseconds cards take moving around
  * @type {Number}
  */
@@ -1000,13 +994,6 @@ function victoryScreen() {
 }
 
 /**
- * Loads the alternate stylesheet for when the images are missing.
- */
-function loadAltStyle() {
-	$('head').append('<link rel="stylesheet" type="text/css" href="css/noimages.css">');
-}
-
-/**
  * Creates a stack of all cards including and stacked on top of the given card.
  * @param  {HTMLElement} cardElement The element for the card.
  * @return {Array[Card]}      An array of cards
@@ -1160,23 +1147,6 @@ $(document).ready(function () {
 		}
 	});
 
-	// detect failed image load
-	var triggeredWarning = false;
-
-	// prepare for a canary check for if we have images
-	$('#canary').on('error', function (_data, _handler) {
-		if (!triggeredWarning) {
-			// eslint-disable-next-line no-console
-			console.warn('Couldn\'t load an image from the original game. If you own SHENZHEN I/O, copy the game\'s "Content/textures/solitaire" folder into the "solitaire" directory of the cloned repository.');
-
-			loadAltStyle();
-		}
-		triggeredWarning = true;
-	});
-
-	// start the canary check
-	$('#canary').attr('src', 'solitaire/button_red_up.png');
-
 	music = new Audio("solitaire/Solitaire.ogg");
 	music.loop = true;
 	$(music).on('canplay', function() {
@@ -1188,9 +1158,4 @@ $(document).ready(function () {
 	});
 
 	$('html').keydown(function () { }); // UI breakpoint for debugging in Chrome
-
-	if (DEBUG_STYLE) {
-		loadAltStyle();
-	}
-
 });
