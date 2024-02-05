@@ -1071,7 +1071,7 @@ $(document).ready(function () {
 	$('.card').draggable({
 		'cursor': 'url(assets/cursor_normal.png) 40 40, default',
 		'revert': 'invalid',
-		'revertDuration': CARD_ANIMATION_SPEED,
+		'revertDuration': 0,
 		helper: function () {
 			var cardSet = $('<div></div>');
 			cardSet.css({
