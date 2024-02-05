@@ -195,11 +195,14 @@ button, .btn-dragon, .bottom-button, .bottom-button * {
 	background-image: url(../assets/button_bottom.png);
 	background-color: transparent;
 	border: 0px;
-	color: white;
+	color: darkgray;
 	width: 141px;
 	height: 46px;
-	font-size: 20px;
+	padding-top: 4px;
+	font-size: 14px;
 	font-family: sans-serif;
+	font-weight: 500;
+	letter-spacing: -0.5px;
 	float: right;
 	text-align: center;
 }
