@@ -519,20 +519,20 @@ function getCard(value, suit) {
  * @return {Boolean}  Whether all dragon cards of that type are able to be moved, and there is an open slot.
  */
 function isDragonReady(type) {
-	if (!DEBUG) {
-		var allAvailable = getTopSpecialCards(type).length == DRAGON_COUNT;
-		var spaceOpen = false;
-
-		for (var i = 0; i < SLOTS.SPARE.length; i++) {
-			if (SLOTS.SPARE[i].cards.length === 0 || SLOTS.SPARE[i].cards[0].special === type) {
-				spaceOpen = true;
-			}
-		}
-
-		return allAvailable && spaceOpen;
-	} else {
+	if (DEBUG === true) {
 		return true;
 	}
+
+	var allAvailable = getTopSpecialCards(type).length == DRAGON_COUNT;
+	var spaceOpen = false;
+
+	for (var i = 0; i < SLOTS.SPARE.length; i++) {
+		if (SLOTS.SPARE[i].cards.length === 0 || SLOTS.SPARE[i].cards[0].special === type) {
+			spaceOpen = true;
+		}
+	}
+
+	return allAvailable && spaceOpen;
 }
 
 var DRAGON_BTNS = [{
@@ -787,6 +787,9 @@ for (var i = 0; i < DRAGON_BTNS.length; i++) {
  * @return {Boolean}  Whether the stack can be picked up
  */
 function canPickUpStack(stack, sourceSlot) {
+	if (DEBUG === true) {
+		return true;
+	}
 	if (sourceSlot.type == 'tray') {
 		if (stack.length == 1) {
 			return true;
@@ -820,6 +823,10 @@ function canPickUpStack(stack, sourceSlot) {
  * @return {Boolean} Whether the stack can be placed on it.
  */
 function canPlaceStack(stack, destSlot, dest) {
+	if (DEBUG === true) {
+		return true;
+	}
+
 	if (destSlot.type == 'tray') {
 		if (stack.length === 0 || dest === undefined) {
 			return true;
@@ -832,7 +839,7 @@ function canPlaceStack(stack, destSlot, dest) {
 		}
 	} else if (destSlot.type == 'flower') {
 		// only flower allowed in flower slot, except during debug
-		return stack[0].special === SPECIAL.FLOWER || DEBUG === true;
+		return stack[0].special === SPECIAL.FLOWER;
 	} else if (destSlot.type == 'spare') {
 		// only 1 card manually placed in spare slot
 		return destSlot.cards.length === 0 && stack.length == 1;
