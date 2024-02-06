@@ -47,7 +47,6 @@ Temporary Items
 .apdisk
 
 solitaire/*
-_solitaire/*
-!solitaire/CopyAssetsHere.txt
+!solitaire/extract.sh
 
 rawassets/*
