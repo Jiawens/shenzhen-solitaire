@@ -215,6 +215,39 @@ button, .btn-dragon, .bottom-button, .bottom-button * {
 	background-image: url(../assets/button_bottom_hover.png);
 }
 
+.info-left-text {
+	background-image: url(../solitaire/win_count.png);
+	background-position: right top;
+	width: 232px;
+	height: 33px;
+	margin-left: -5px;
+	margin-top: 10px;
+	float: left;
+	display: flex;
+}
+
+#win_count_text {
+	width: 131px;
+	height: 33px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	letter-spacing: 1px;
+	color: dimgray;
+}
+
+#win_count {
+	width: 105px;
+	height: 33px;
+	margin-right: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: monospace;
+	color: gray;
+}
+
 .card-logo-display {
 	position: relative;
 	display: inline-block;

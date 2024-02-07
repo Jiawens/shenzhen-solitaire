@@ -17,7 +17,7 @@ do
     done
 done
 
-root="card_back card_front card_shadow card_texture table_large"
+root="card_back card_front card_shadow card_texture table_large win_count"
 for file in ${root[@]}
 do
     cp "$1"/textures/solitaire/${file}.png $SCRIPT_DIR/
