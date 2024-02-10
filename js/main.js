@@ -114,6 +114,7 @@ var SLOTS = {
 	FLOWER: [
 		{
 			type: 'flower',
+			fan: "revert",
 			top: 18,
 			left: 614
 		}
@@ -138,56 +139,56 @@ var SLOTS = {
 	TRAY: [
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 46,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 198,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 350,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 502,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 654,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 806,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 958,
 			height: SLOT_TALL
 		},
 		{
 			type: 'tray',
-			fan: true,
+			fan: "normal",
 			top: 282,
 			left: 1110,
 			height: SLOT_TALL
@@ -313,7 +314,9 @@ function insertCard(card, slot, depth) {
 	}
 
 	var h = 0;
-	if (slot.fan === true) {
+	if(slot.fan === "revert") {
+		h = depth * -1;
+	} else if (slot.fan === "normal") {
 		h = depth * CARD_STACK_GAP;
 	}
 	card.element.css({
@@ -913,7 +916,7 @@ function startNewGame(cards, board, seed) {
 			setTimeout(function (card, col, row) {
 				card.element.removeClass(cardBacking());
 				tweenCard(card, SLOTS.TRAY[col], row);
-			},(row*8+col)*80,cards[row*8+col], col, row);
+			},(row*8+col)*80,cards[39-(row*8+col)], col, row);
 		}
 	}
 	setTimeout(function () {
