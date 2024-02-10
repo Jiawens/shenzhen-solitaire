@@ -762,11 +762,25 @@ function dragonBtnListener(b) {
 
 			if (list.length > 0 && openSlot !== undefined) {
 				for (i = 0; i < list.length; i++) {
-					tweenCard(list[i], openSlot, openSlot.cards.length, applyCardBacking);
+					setTimeout(
+						function (card, slot, depth, callback) {
+							callback(card, slot, depth);
+							tweenCard(card, slot, depth, undefined);
+						},
+						i * 100,
+						list[i], openSlot, openSlot.cards.length, applyCardBacking
+					);
 				}
-				$(b.selector).css('background-image', 'url(\'' + b.imgComplete + '\')').data('complete', true);
-				balanceCards();
-				onFieldUpdated();
+				setTimeout(
+					function (selector, imgComplete) {
+						$(selector)
+							.css('background-image', 'url(\'' + imgComplete + '\')')
+							.data('complete', true);
+						balanceCards();
+						onFieldUpdated();
+						},
+						list.length * 100, b.selector, b.imgComplete
+					);
 			}
 		}
 	};
