@@ -78,6 +78,9 @@ body {
 .card-reverse .card-logo, .card-reverse .card-logo-a, .card-reverse .card-logo-b {
 	display: none;
 }
+.card-reverse>div {
+	visibility: hidden;
+}
 
 .slot {
 	width: 122px;

@@ -410,29 +410,6 @@ function makeDeck() {
 }
 
 /**
- * Places the given cards onto the given board in a top-to-bottom, left-to-right fashion.
- * @param  {Array[Card]} cards   List of cards to place
- * @param  {HTMLElement} board   Parent element for the cards.
- * @param  {SLOT} traySet An array of individual slots, (ex: SLOTS.TRAY)
- */
-function placeCardsInTray(cards, board, traySet) {
-	var row = 0;
-	var col = 0;
-	for (var i = 0; i < cards.length; i++) {
-		var card = cards[i];
-		card.element.appendTo(board);
-		insertCard(card, traySet[col], row);
-
-		row++;
-		if (row >= 5) {
-			row = 0;
-			col++;
-		}
-	}
-	onFieldUpdated();
-}
-
-/**
  * Makes sure there are no vertical gaps between cards in the tray, by moving them towards the top to fill the gap.
  */
 function balanceCards() {
@@ -714,25 +691,15 @@ function tweenCard(card, slot, depth, callback) {
 	});
 }
 
-/**
- * Intended as a parameter for tweenCard.
- * Applies a backing to the card. Also adds special "dragon" backings if the win count is right.
- * @param  {Card} card  The card
- * @param  {SLOT} slot  ignored
- * @param  {Integer} depth ignored
- */
-function applyCardBacking(card, _slot, _depth) {
-	card.element.addClass('card-reverse');
-
-	// special backing
+function cardBacking() {
 	if (useLocalStorage) {
-		if (localStorage.shenzhen_win_count >= 100) {
-			card.element.addClass('grand_dragon');
-		}
 		if (localStorage.shenzhen_win_count >= 200) {
-			card.element.addClass('grand_dragon_2');
+			return 'card-reverse grand_dragon grand_dragon_2';
+		} else if (localStorage.shenzhen_win_count >= 100) {
+			return 'card-reverse grand_dragon';
 		}
 	}
+	return 'card-reverse';
 }
 
 /**
@@ -763,12 +730,12 @@ function dragonBtnListener(b) {
 			if (list.length > 0 && openSlot !== undefined) {
 				for (i = 0; i < list.length; i++) {
 					setTimeout(
-						function (card, slot, depth, callback) {
-							callback(card, slot, depth);
-							tweenCard(card, slot, depth, undefined);
+						function (card, slot, depth) {
+							card.element.addClass(cardBacking());
+							tweenCard(card, slot, depth,);
 						},
 						i * 100,
-						list[i], openSlot, openSlot.cards.length, applyCardBacking
+						list[i], openSlot, openSlot.cards.length
 					);
 				}
 				setTimeout(
@@ -909,8 +876,6 @@ function startNewGame(cards, board, seed) {
 	looper = undefined;
 	isInVictory = false;
 
-	// TODO: start cards face down in the flower slot, then move them into place.
-
 	sortCards(cards);
 
 	var truSeed = seed;
@@ -932,10 +897,28 @@ function startNewGame(cards, board, seed) {
 
 	shuffleArray(cards); // shuffle cards
 
-	$('.card').finish().removeClass('card-reverse');
-	$('.btn-dragon').data('complete', false);
-	placeCardsInTray(cards, board, SLOTS.TRAY); // place cards
+	for (var i = 0; i < cards.length; i++) {
+		cards[i].element.appendTo(board);
+		insertCard(cards[i], SLOTS.FLOWER[0], i);
+	}
+	$('.card').addClass(cardBacking()); //TODO PLUS BACK
 	$('.card').visible();
+	$('.btn-dragon').data('complete', false);
+	for(var i = 0; i < DRAGON_BTNS.length; i++) {
+		var btn = DRAGON_BTNS[i];
+		$(btn.selector).css('background-image', 'url(\'' + btn.imgNone + '\')').data('active', false);
+	}
+	for (var row = 0; row < 5; row++) {
+		for (var col = 0; col < 8; col++) {
+			setTimeout(function (card, col, row) {
+				card.element.removeClass(cardBacking());
+				tweenCard(card, SLOTS.TRAY[col], row);
+			},(row*8+col)*80,cards[row*8+col], col, row);
+		}
+	}
+	setTimeout(function () {
+		onFieldUpdated();
+	}, 40*80 + CARD_ANIMATION_SPEED);
 }
 
 function updateWinCount() {
