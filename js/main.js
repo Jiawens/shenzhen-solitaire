@@ -734,7 +734,7 @@ function dragonBtnListener(b) {
 							card.element.addClass(cardBacking());
 							tweenCard(card, slot, depth,);
 						},
-						i * 100,
+						i * 75,
 						list[i], openSlot, openSlot.cards.length
 					);
 				}
@@ -746,7 +746,7 @@ function dragonBtnListener(b) {
 						balanceCards();
 						onFieldUpdated();
 						},
-						list.length * 100, b.selector, b.imgComplete
+						list.length * 75, b.selector, b.imgComplete
 					);
 			}
 		}
