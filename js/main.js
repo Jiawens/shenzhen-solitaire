@@ -747,10 +747,10 @@ function dragonBtnListener(b) {
 							.css('background-image', 'url(\'' + imgComplete + '\')')
 							.data('complete', true);
 						balanceCards();
-						onFieldUpdated();
 						},
 						list.length * 75, b.selector, b.imgComplete
 					);
+				setTimeout(onFieldUpdated, list.length * 75 + CARD_ANIMATION_SPEED);
 			}
 		}
 	};
