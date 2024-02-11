@@ -1154,6 +1154,18 @@ function getCurrentState() {
 			bamboo: 0,
 			char: 0,
 			coin: 0
+		},
+		remainings: function() {
+			var sum=0;
+			for(var i=0;i<this.spare.length;i++) {
+				if(!((typeof(this.spare[i])=='undefined')||(this.spare[i].collected===true))) {
+					sum+=1;
+				}
+			}
+			for(var i=0;i<this.tray.length;i++) {
+				sum+=this.tray[i].length;
+			}
+			return sum;
 		}
 	};
 	for (var i = 0; i < 3; i++) {
