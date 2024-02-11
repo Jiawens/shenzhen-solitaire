@@ -1144,3 +1144,85 @@ $(document).ready(function () {
 
 	$('html').keydown(function () { }); // UI breakpoint for debugging in Chrome
 });
+
+function getCurrentState() {
+	var c = {
+		spare: [],
+		tray: [[],[],[],[],[],[],[],[]],
+		flower: false,
+		out: {
+			bamboo: 0,
+			char: 0,
+			coin: 0
+		}
+	};
+	for (var i = 0; i < 3; i++) {
+		if(SLOTS.SPARE[i].cards.length==DRAGON_COUNT) {
+			c.spare[i] = {
+				collected: true,
+			};
+		}
+	}
+	for (var i = 0; i < cards.length; i++) {
+		var card = cards[i];
+		if (card.slot.type === 'flower') {
+			c.flower = true;
+			continue;
+		} else if (card.slot.type === 'out') {
+			var value = card.value;
+			var color = card.suit.small;
+			if (color === 'coins') {
+				if (c.out.coin<value) {
+					c.out.coin=value;
+				}
+			} else if (color === 'bamboo') {
+				if (c.out.bamboo<value) {
+					c.out.bamboo=value;
+				}
+			} else if (color === 'characters') {
+				if (c.out.char<value) {
+					c.out.char=value;
+				}
+			}
+			continue;
+		} else if (card.slot.type === 'spare') {
+			if (card.slot.cards.length === DRAGON_COUNT) {
+				continue;
+			}
+		}
+		if (card.special!=undefined) {
+			if (card.slot.type === 'spare') {
+				var slot = (card.slot.left-46)/152;
+				c.spare[slot] = {
+					type: 'special',
+					color: card.special.small,
+				};
+			} else {
+				var slot = (card.slot.left-46)/152;
+				var depth = (card.element.offset().top-282)/30;
+				c.tray[slot][depth] = {
+					type: 'special',
+					color: card.special.small,
+				};
+			}
+		} else {
+			if (card.slot.type === 'spare') {
+				var slot = (card.slot.left-46)/152;
+				c.spare[slot] = {
+					type: 'number',
+					color: card.suit.small,
+					value: card.value,
+				};
+			} else {
+				var slot = (card.slot.left-46)/152;
+				var depth = (card.element.offset().top-282)/30;
+				c.tray[slot][depth] = {
+					type: 'number',
+					color: card.suit.small,
+					value: card.value,
+				};
+			}
+		}
+	}
+	return c;
+}
