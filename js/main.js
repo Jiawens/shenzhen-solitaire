@@ -1158,7 +1158,7 @@ function getCurrentState() {
 		remainings: function() {
 			var sum=0;
 			for(var i=0;i<this.spare.length;i++) {
-				if(!((typeof(this.spare[i])=='undefined')||(this.spare[i].collected===true))) {
+				if (this.spare[i].type === 'number' || this.spare[i].type === 'special') {
 					sum+=1;
 				}
 			}
@@ -1171,8 +1171,13 @@ function getCurrentState() {
 	for (var i = 0; i < 3; i++) {
 		if(SLOTS.SPARE[i].cards.length==DRAGON_COUNT) {
 			c.spare[i] = {
-				collected: true,
+				type: 'collected'
 			};
+		}
+		else {
+			c.spare[i] = {
+				type: 'empty'
+			}
 		}
 	}
 	for (var i = 0; i < cards.length; i++) {
