@@ -1167,6 +1167,31 @@ function getCurrentState() {
 			}
 			return sum;
 		},
+		clone: function () {
+			var state = {
+				spare: [],
+				tray: [[], [], [], [], [], [], [], []],
+				flower: this.flower,
+				out: {
+					bamboo: this.out.bamboo,
+					char: this.out.char,
+					coin: this.out.coin
+				},
+				remainings: this.remainings,
+				clone: this.clone,
+				cmp: this.cmp,
+				simplify: this.simplify,
+			}
+			for (var i = 0; i < this.spare.length; i++) {
+				state.spare[i] = Object.assign({}, this.spare[i]);
+			}
+			for (var i = 0; i < this.tray.length; i++) {
+				for (var j = 0; j < this.tray[i].length; j++) {
+					state.tray[i].push(Object.assign({}, this.tray[i][j]));
+				}
+			}
+			return state;
+		},
 		cmp: function (b) {
 			for (var i = 0; i < 3; i++) {
 				if (this.spare[i].type !== b.spare[i].type) {
