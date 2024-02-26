@@ -1208,6 +1208,94 @@ function getCurrentState() {
 				return false;
 			}
 			return true;
+		},
+		simplify: function () {
+			outer:
+			while (true) {
+				var movableTops = [];
+				for (var i = 0; i < this.spare.length; i++) {
+					var card = this.spare[i];
+					if (card.type === 'special' && card.color === 'flower') {
+						this.flower = true;
+						this.spare[i] = {
+							type: 'empty',
+						};
+						continue outer;
+					} else if (card.type === 'number') {
+						movableTops.push({
+							card: card,
+							slot: 'spare',
+							index: i
+						});
+					}
+				}
+				for (var i = 0; i < this.tray.length; i++) {
+					if (this.tray[i].length > 0) {
+						var card = this.tray[i][this.tray[i].length - 1];
+						if (card.type === 'number') {
+							movableTops.push({
+								card: card,
+								slot: 'tray',
+								index: i
+							});
+						} else if (card.type === 'special' && card.color === 'flower') {
+							this.flower = true;
+							this.tray[i].pop();
+							continue outer;
+						}
+					}
+				}
+				var out = false;
+				for (var i = 0; i < movableTops.length; i++) {
+					var color_value = 16;
+					if (movableTops[i].card.color === 'bamboo') {
+						color_value = this.out.bamboo;
+					} else if (movableTops[i].card.color === 'characters') {
+						color_value = this.out.char;
+					} else if (movableTops[i].card.color === 'coins') {
+						color_value = this.out.coin;
+					}
+					if (movableTops[i].card.value < 3) {
+						if (movableTops[i].card.value === (color_value + 1)) {
+							if (movableTops[i].card.color === 'bamboo') {
+								this.out.bamboo = movableTops[i].card.value;
+							} else if (movableTops[i].card.color === 'characters') {
+								this.out.char = movableTops[i].card.value;
+							} else if (movableTops[i].card.color === 'coins') {
+								this.out.coin = movableTops[i].card.value;
+							}
+							out = true;
+						}
+					} else {
+						if (this.out.bamboo >= (movableTops[i].card.value - 1) && this.out.char >= (movableTops[i].card.value - 1) && this.out.coin >= (movableTops[i].card.value - 1)) {
+							if (movableTops[i].card.value === (color_value + 1)) {
+								if (movableTops[i].card.color === 'bamboo') {
+									this.out.bamboo = movableTops[i].card.value;
+								} else if (movableTops[i].card.color === 'characters') {
+									this.out.char = movableTops[i].card.value;
+								} else if (movableTops[i].card.color === 'coins') {
+									this.out.coin = movableTops[i].card.value;
+								}
+								out = true;
+							}
+						}
+					}
+					if (out === true) {
+						if (movableTops[i].slot === 'spare') {
+							this.spare[movableTops[i].index] = {
+								type: 'empty'
+							};
+						} else if (movableTops[i].slot === 'tray') {
+							this.tray[movableTops[i].index].pop();
+						}
+						break;
+					}
+				}
+				if (out === false) {
+					break outer;
+				}
+			}
+			return this;
 		}
 	};
 	for (var i = 0; i < 3; i++) {
