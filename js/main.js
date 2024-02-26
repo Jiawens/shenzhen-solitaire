@@ -1182,6 +1182,7 @@ function getCurrentState() {
 				cmp: this.cmp,
 				simplify: this.simplify,
 				neighbors: this.neighbors,
+				solve: this.solve,
 			}
 			for (var i = 0; i < this.spare.length; i++) {
 				state.spare[i] = Object.assign({}, this.spare[i]);
@@ -1540,6 +1541,68 @@ function getCurrentState() {
 				}
 			}
 			return ret;
+		},
+		solve: function () {
+			var iter=10000;
+			var openList = [];
+			var closeList = [];
+			openList.push({
+				node: {
+					state: this,
+					action: 'start'
+				},
+				cost: 0,
+				parent: undefined
+			});
+			while(iter--) {
+				var lowest_index = openList.length-1;
+				var lowest_cost = openList[lowest_index].cost + openList[lowest_index].node.state.remainings();
+				for (var i = 0; i < openList.length; i++) {
+					if (openList[i].cost + openList[i].node.state.remainings() < lowest_cost) {
+						lowest_index = i;
+						lowest_cost = openList[i].cost + openList[i].node.state.remainings();
+					}
+				}
+				var current = openList.splice(lowest_index, 1)[0];
+				console.log(current.cost + "_" + current.node.state.remainings());
+				if(current.node.state.remainings() === 0) {
+					console.log(current);
+					console.log(current.node.action);
+					do {
+						current = current.parent;
+						console.log(current.node.action);
+					} while(current.parent != undefined)
+					break;
+				}
+				var neighbors = current.node.state.neighbors();
+				outer:
+				for (var i = 0; i < neighbors.length; i++) {
+					for(var j = 0; j < closeList.length; j++) {
+						if(neighbors[i].state.cmp(closeList[j].node.state)) {
+							continue outer;
+						}
+					}
+					for(var j = 0; j < openList.length; j++) {
+						if(neighbors[i].state.cmp(openList[j].node.state)) {
+							if((current.cost+1)>openList[j].cost) {
+								continue outer;
+							} else {
+								openList.splice(j,1);
+								break;
+							}
+						}
+					}
+					openList.push({
+						node: {
+							state: neighbors[i].state,
+							action: neighbors[i].action
+						},
+						cost: current.cost + neighbors[i].cost,
+						parent: current,
+					});
+				}
+				closeList.push(current);
+			}
 		}
 	};
 	for (var i = 0; i < 3; i++) {
