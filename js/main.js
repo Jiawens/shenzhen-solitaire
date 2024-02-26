@@ -1181,6 +1181,7 @@ function getCurrentState() {
 				clone: this.clone,
 				cmp: this.cmp,
 				simplify: this.simplify,
+				neighbors: this.neighbors,
 			}
 			for (var i = 0; i < this.spare.length; i++) {
 				state.spare[i] = Object.assign({}, this.spare[i]);
@@ -1321,6 +1322,224 @@ function getCurrentState() {
 				}
 			}
 			return this;
+		},
+		neighbors: function () {
+			var ret = [];
+			//dragon collect
+			var dragon_green = 0;
+			var dragon_white = 0;
+			var dragon_red = 0;
+			for (var i = 0; i < this.spare.length; i++) {
+				if (this.spare[i].type === 'special') {
+					if (this.spare[i].color === 'dragon_green') {
+						dragon_green += 1;
+					} else if (this.spare[i].color === 'dragon_white') {
+						dragon_white += 1;
+					} else if (this.spare[i].color === 'dragon_red') {
+						dragon_red += 1;
+					}
+				}
+			}
+			for (var i = 0; i < this.tray.length; i++) {
+				var j = this.tray[i].length;
+				if (j > 0) {
+					if (this.tray[i][j - 1].type === 'special') {
+						if (this.tray[i][j - 1].color === 'dragon_green') {
+							dragon_green += 1;
+						} else if (this.tray[i][j - 1].color === 'dragon_white') {
+							dragon_white += 1;
+						} else if (this.tray[i][j - 1].color === 'dragon_red') {
+							dragon_red += 1;
+						}
+					}
+				}
+			}
+			var target = undefined;
+			if (dragon_green === 4) {
+				target = 'dragon_green';
+			} else if (dragon_white === 4) {
+				target = 'dragon_white';
+			} else if (dragon_red === 4) {
+				target = 'dragon_red';
+			}
+			if (target !== undefined) {
+				canCollect = false;
+				slot = undefined;
+				for (var i = 0; i < 3; i++) {
+					if (this.spare[i].type === 'empty') {
+						slot = i;
+						canCollect = true;
+						break;
+					} else if (this.spare[i].type === 'special' && this.spare[i].color === target) {
+						slot = i;
+						canCollect = true;
+						break;
+					}
+				}
+				if (canCollect === true) {
+					var state = this.clone();
+					state.spare[slot] = {
+						type: 'collected'
+					};
+					for (var i = 0; i < state.spare.length; i++) {
+						if (state.spare[i].type === 'special' && state.spare[i].color === target) {
+							state.spare[i] = {
+								type: 'empty'
+							};
+						}
+					}
+					for (var i = 0; i < state.tray.length; i++) {
+						for (var j = 0; j < state.tray[i].length; j++) {
+							if (state.tray[i][j].type === 'special' && state.tray[i][j].color === target) {
+								state.tray[i][j] = undefined;
+							}
+						}
+						state.tray[i] = state.tray[i].filter(function (el) {
+							return el != undefined;
+						});
+					}
+					ret.push({
+						state: state.simplify(),
+						action: 'collect_' + target,
+						cost: 1,
+					});
+				}
+			}
+			//tray to spare
+			var emptySpare = undefined;
+			for (var i = 0; i < 3; i++) {
+				if (this.spare[i].type === 'empty') {
+					emptySpare = i;
+					break;
+				}
+			}
+			if (emptySpare !== undefined) {
+				for (var i = 0; i < this.tray.length; i++) {
+					if (this.tray[i].length > 0) {
+						var state = this.clone();
+						state.spare[emptySpare] = state.tray[i].pop();
+						ret.push({
+							state: state.simplify(),
+							action: 'ts_' + i + '_' + emptySpare,
+							cost: 1,
+						});
+					}
+				}
+			}
+			//spare to tray
+			for (var i = 0; i < this.spare.length; i++) {
+				if (this.spare[i].type === 'special') {
+					for (var j = 0; j < this.tray.length; j++) {
+						if (this.tray[j].length == 0) {
+							var state = this.clone();
+							state.tray[j].push(state.spare[i]);
+							state.spare[i] = {
+								type: 'empty'
+							};
+							ret.push({
+								state: state.simplify(),
+								action: 'st_' + i + '_' + j,
+								cost: 1,
+							});
+						}
+					}
+				} else if (this.spare[i].type === 'number') {
+					for (var j = 0; j < this.tray.length; j++) {
+						if (this.tray[j].length == 0) {
+							var state = this.clone();
+							state.tray[j].push(state.spare[i]);
+							state.spare[i] = {
+								type: 'empty'
+							};
+							ret.push({
+								state: state.simplify(),
+								action: 'st_' + i + '_' + j,
+								cost: 1,
+							});
+						} else if (this.tray[j].length > 0) {
+							var card = this.tray[j][this.tray[j].length - 1];
+							if (card.value === this.spare[i].value + 1 && card.color !== this.spare[i].color) {
+								var state = this.clone();
+								state.tray[j].push(state.spare[i]);
+								state.spare[i] = {
+									type: 'empty'
+								};
+								ret.push({
+									state: state.simplify(),
+									action: 'st_' + i + '_' + j,
+									cost: 1,
+								});
+							}
+						}
+					}
+				}
+			}
+			//tray to tray
+			for (var i = 0; i < this.tray.length; i++) {
+				if (this.tray[i].length === 0) {
+					continue;
+				}
+				for (var j = 0; j < this.tray[i].length; j++) {
+					//TODO combine j==0 and j!=0
+					if (j == 0) {
+						for (var k = 0; k < this.tray.length; k++) {
+							if (k != i) {
+								if (this.tray[k].length == 0) {
+									var state = this.clone();
+									state.tray[k].push(state.tray[i].pop());
+									ret.push({
+										state: state.simplify(),
+										action: 'tt_' + i + '_' + k + '_' + 1,
+										cost: 1,
+									});
+								} else {
+									var card = this.tray[k][this.tray[k].length - 1];
+									if (card.value === this.tray[i][this.tray[i].length - 1].value + 1 && card.color !== this.tray[i][this.tray[i].length - 1].color) {
+										var state = this.clone();
+										state.tray[k].push(state.tray[i].pop());
+										ret.push({
+											state: state.simplify(),
+											action: 'tt_' + i + '_' + k + '_' + 1,
+											cost: 1,
+										});
+									}
+								}
+							}
+						}
+					} else {
+						var card = this.tray[i][this.tray[i].length - 1 - j];
+						if (card.value === this.tray[i][this.tray[i].length - j].value + 1 && card.color !== this.tray[i][this.tray[i].length - j].color) {
+							for (var k = 0; k < this.tray.length; k++) {
+								if (k != i) {
+									if (this.tray[k].length == 0) {
+										var state = this.clone();
+										state.tray[k]=state.tray[k].concat(state.tray[i].splice(this.tray[i].length - 1 - j));
+										ret.push({
+											state: state.simplify(),
+											action: 'tt_' + i + '_' + k + '_' + (j + 1),
+											cost: 1,
+										});
+									} else {
+										var t_card = this.tray[k][this.tray[k].length - 1];
+										if (t_card.value === card.value + 1 && t_card.color !== card.color) {
+											var state = this.clone();
+											state.tray[k]=state.tray[k].concat(state.tray[i].splice(this.tray[i].length - 1 - j));
+											ret.push({
+												state: state.simplify(),
+												action: 'tt_' + i + '_' + k + '_' + (j + 1),
+												cost: 1,
+											});
+										}
+									}
+								}
+							}
+						} else {
+							break;
+						}
+					}
+				}
+			}
+			return ret;
 		}
 	};
 	for (var i = 0; i < 3; i++) {
