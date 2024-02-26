@@ -1166,6 +1166,48 @@ function getCurrentState() {
 				sum+=this.tray[i].length;
 			}
 			return sum;
+		},
+		cmp: function (b) {
+			for (var i = 0; i < 3; i++) {
+				if (this.spare[i].type !== b.spare[i].type) {
+					return false;
+				}
+				if (this.spare[i].type === 'number') {
+					if (this.spare[i].color !== b.spare[i].color || this.spare[i].value !== b.spare[i].value) {
+						return false;
+					}
+				} else if (this.spare[i].type === 'special') {
+					if (this.spare[i].color !== b.spare[i].color) {
+						return false;
+					}
+				}
+			}
+			for (var i = 0; i < 8; i++) {
+				if (this.tray[i].length !== b.tray[i].length) {
+					return false;
+				}
+				for (var j = 0; j < this.tray[i].length; j++) {
+					if (this.tray[i][j].type !== b.tray[i][j].type) {
+						return false;
+					}
+					if (this.tray[i][j].type === 'number') {
+						if (this.tray[i][j].color !== b.tray[i][j].color || this.tray[i][j].value !== b.tray[i][j].value) {
+							return false;
+						}
+					} else if (this.tray[i][j].type === 'special') {
+						if (this.tray[i][j].color !== b.tray[i][j].color) {
+							return false;
+						}
+					}
+				}
+			}
+			if (this.flower !== b.flower) {
+				return false;
+			}
+			if (this.out.bamboo !== b.out.bamboo || this.out.char !== b.out.char || this.out.coin !== b.out.coin) {
+				return false;
+			}
+			return true;
 		}
 	};
 	for (var i = 0; i < 3; i++) {
