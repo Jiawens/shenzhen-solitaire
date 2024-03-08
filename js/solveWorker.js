@@ -251,6 +251,71 @@ self.onmessage = function(e) {
                 });
             }
         }
+        //tray to tray
+        for (var i = 0; i < this.tray.length; i++) {
+            if (this.tray[i].length === 0) {
+                continue;
+            }
+            for (var j = 0; j < this.tray[i].length; j++) {
+                //TODO combine j==0 and j!=0
+                if (j == 0) {
+                    for (var k = 0; k < this.tray.length; k++) {
+                        if (k != i) {
+                            if (this.tray[k].length == 0) {
+                                var state = this.clone();
+                                state.tray[k].push(state.tray[i].pop());
+                                ret.push({
+                                    state: state.simplify(),
+                                    action: 'tt_' + i + '_' + k + '_' + 1,
+                                    cost: 1,
+                                });
+                            } else {
+                                var card = this.tray[k][this.tray[k].length - 1];
+                                if (card.value === this.tray[i][this.tray[i].length - 1].value + 1 && card.color !== this.tray[i][this.tray[i].length - 1].color) {
+                                    var state = this.clone();
+                                    state.tray[k].push(state.tray[i].pop());
+                                    ret.push({
+                                        state: state.simplify(),
+                                        action: 'tt_' + i + '_' + k + '_' + 1,
+                                        cost: 1,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    var card = this.tray[i][this.tray[i].length - 1 - j];
+                    if (card.value === this.tray[i][this.tray[i].length - j].value + 1 && card.color !== this.tray[i][this.tray[i].length - j].color) {
+                        for (var k = 0; k < this.tray.length; k++) {
+                            if (k != i) {
+                                if (this.tray[k].length == 0) {
+                                    var state = this.clone();
+                                    state.tray[k]=state.tray[k].concat(state.tray[i].splice(this.tray[i].length - 1 - j));
+                                    ret.push({
+                                        state: state.simplify(),
+                                        action: 'tt_' + i + '_' + k + '_' + (j + 1),
+                                        cost: 1,
+                                    });
+                                } else {
+                                    var t_card = this.tray[k][this.tray[k].length - 1];
+                                    if (t_card.value === card.value + 1 && t_card.color !== card.color) {
+                                        var state = this.clone();
+                                        state.tray[k]=state.tray[k].concat(state.tray[i].splice(this.tray[i].length - 1 - j));
+                                        ret.push({
+                                            state: state.simplify(),
+                                            action: 'tt_' + i + '_' + k + '_' + (j + 1),
+                                            cost: 1,
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
         //tray to spare
         var emptySpare = undefined;
         for (var i = 0; i < 3; i++) {
@@ -316,71 +381,6 @@ self.onmessage = function(e) {
                                 cost: 1,
                             });
                         }
-                    }
-                }
-            }
-        }
-        //tray to tray
-        for (var i = 0; i < this.tray.length; i++) {
-            if (this.tray[i].length === 0) {
-                continue;
-            }
-            for (var j = 0; j < this.tray[i].length; j++) {
-                //TODO combine j==0 and j!=0
-                if (j == 0) {
-                    for (var k = 0; k < this.tray.length; k++) {
-                        if (k != i) {
-                            if (this.tray[k].length == 0) {
-                                var state = this.clone();
-                                state.tray[k].push(state.tray[i].pop());
-                                ret.push({
-                                    state: state.simplify(),
-                                    action: 'tt_' + i + '_' + k + '_' + 1,
-                                    cost: 1,
-                                });
-                            } else {
-                                var card = this.tray[k][this.tray[k].length - 1];
-                                if (card.value === this.tray[i][this.tray[i].length - 1].value + 1 && card.color !== this.tray[i][this.tray[i].length - 1].color) {
-                                    var state = this.clone();
-                                    state.tray[k].push(state.tray[i].pop());
-                                    ret.push({
-                                        state: state.simplify(),
-                                        action: 'tt_' + i + '_' + k + '_' + 1,
-                                        cost: 1,
-                                    });
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    var card = this.tray[i][this.tray[i].length - 1 - j];
-                    if (card.value === this.tray[i][this.tray[i].length - j].value + 1 && card.color !== this.tray[i][this.tray[i].length - j].color) {
-                        for (var k = 0; k < this.tray.length; k++) {
-                            if (k != i) {
-                                if (this.tray[k].length == 0) {
-                                    var state = this.clone();
-                                    state.tray[k]=state.tray[k].concat(state.tray[i].splice(this.tray[i].length - 1 - j));
-                                    ret.push({
-                                        state: state.simplify(),
-                                        action: 'tt_' + i + '_' + k + '_' + (j + 1),
-                                        cost: 1,
-                                    });
-                                } else {
-                                    var t_card = this.tray[k][this.tray[k].length - 1];
-                                    if (t_card.value === card.value + 1 && t_card.color !== card.color) {
-                                        var state = this.clone();
-                                        state.tray[k]=state.tray[k].concat(state.tray[i].splice(this.tray[i].length - 1 - j));
-                                        ret.push({
-                                            state: state.simplify(),
-                                            action: 'tt_' + i + '_' + k + '_' + (j + 1),
-                                            cost: 1,
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        break;
                     }
                 }
             }
@@ -452,6 +452,7 @@ self.onmessage = function(e) {
         return [];
     };
     console.log("solving");
+    console.log(state);
     var next_step = state.solve(10000);
     self.postMessage(next_step);
 };
