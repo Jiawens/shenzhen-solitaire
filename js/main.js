@@ -635,6 +635,92 @@ function onFieldUpdated() {
 		}
 	}
 
+	if (solveWorker != undefined) {
+		solveWorker.terminate();
+	}
+	solveWorker = new Worker('js/solveWorker.js');
+
+	solveWorker.onmessage = function (event) {
+		if(event.data.length === 0) {
+			return;
+		}
+		$('#hint').off('click');
+		$('#hint').click(function () {
+			console.log(event.data);
+			var next_step = event.data[event.data.length - 2];
+			console.log("Performing:" + next_step);
+			if(next_step.startsWith('collect_dragon')) {
+				var b;
+				if(next_step.endsWith('green')) {
+					b=DRAGON_BTNS[1];
+				} else if(next_step.endsWith('red')) {
+					b=DRAGON_BTNS[0];
+				} else if(next_step.endsWith('white')) {
+					b=DRAGON_BTNS[2];
+				}
+				var i;
+				var list = getSpecialCards(b.type);
+
+				var openSlot;
+				for (i = 0; i < SLOTS.SPARE.length; i++) {
+					var set = SLOTS.SPARE[i].cards;
+					// TODO: if any spare slot already has this dragon, go to that one instead.
+					if (set.length >= DRAGON_COUNT && set[0].special == b.type) {
+						return false;
+					}
+
+					if (set.length === 0 || set[0].special == b.type && set.length < DRAGON_COUNT) {
+						openSlot = SLOTS.SPARE[i];
+						break;
+					}
+				}
+
+				if (list.length > 0 && openSlot !== undefined) {
+					for (i = 0; i < list.length; i++) {
+						setTimeout(
+							function (card, slot, depth) {
+								card.element.addClass(cardBacking());
+								tweenCard(card, slot, depth,);
+							},
+							i * 75,
+							list[i], openSlot, openSlot.cards.length
+						);
+					}
+					setTimeout(
+						function (selector, imgComplete) {
+							$(selector)
+								.css('background-image', 'url(\'' + imgComplete + '\')')
+								.data('complete', true);
+							balanceCards();
+						},
+						list.length * 75, b.selector, b.imgComplete
+					);
+					setTimeout(onFieldUpdated, list.length * 75 + CARD_ANIMATION_SPEED);
+				}
+			} else if(next_step.startsWith('tt')) {
+				for(var i = Number(next_step[7])-1; i >=0; i--) {
+					tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1-i],
+						SLOTS.TRAY[Number(next_step[5])],
+						SLOTS.TRAY[Number(next_step[5])].cards.length);
+				}
+				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
+			} else if(next_step.startsWith('st')) {
+				tweenCard(SLOTS.SPARE[Number(next_step[3])].cards[0],
+					SLOTS.TRAY[Number(next_step[5])],
+					SLOTS.TRAY[Number(next_step[5])].cards.length);
+				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
+			} else if(next_step.startsWith('ts')) {
+				tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1],
+					SLOTS.SPARE[Number(next_step[5])],
+					0);
+				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
+			}
+			$('#hint').hide();
+		});
+		$('#hint').show();
+	};
+	solveWorker.postMessage(JSON.parse(JSON.stringify(getCurrentState())));
+
 	// no more top cards to move, is the field clear?
 	var allGood = true;
 	for (i = 0; i < SLOTS.TRAY.length; i++) {
@@ -998,6 +1084,7 @@ function getStackFromCardElement(cardElement) {
 }
 
 var cards;
+var solveWorker = undefined;
 $(document).ready(function () {
 
 	if (useLocalStorage) {
@@ -1052,6 +1139,8 @@ $(document).ready(function () {
 		$('#playMusicButton').show();
 		$('#pauseMusicButton').hide();
 	});
+
+	$('#hint').hide();
 
 	// Make the cards interactable
 	$('.slot').droppable({
@@ -1144,3 +1233,90 @@ $(document).ready(function () {
 
 	$('html').keydown(function () { }); // UI breakpoint for debugging in Chrome
 });
+
+function getCurrentState() {
+	var c = {
+		spare: [],
+		tray: [[],[],[],[],[],[],[],[]],
+		flower: false,
+		out: {
+			bamboo: 0,
+			char: 0,
+			coin: 0
+		},
+	};
+	for (var i = 0; i < 3; i++) {
+		if(SLOTS.SPARE[i].cards.length==DRAGON_COUNT) {
+			c.spare[i] = {
+				type: 'collected'
+			};
+		}
+		else {
+			c.spare[i] = {
+				type: 'empty'
+			}
+		}
+	}
+	for (var i = 0; i < cards.length; i++) {
+		var card = cards[i];
+		if (card.slot.type === 'flower') {
+			c.flower = true;
+			continue;
+		} else if (card.slot.type === 'out') {
+			var value = card.value;
+			var color = card.suit.small;
+			if (color === 'coins') {
+				if (c.out.coin<value) {
+					c.out.coin=value;
+				}
+			} else if (color === 'bamboo') {
+				if (c.out.bamboo<value) {
+					c.out.bamboo=value;
+				}
+			} else if (color === 'characters') {
+				if (c.out.char<value) {
+					c.out.char=value;
+				}
+			}
+			continue;
+		} else if (card.slot.type === 'spare') {
+			if (card.slot.cards.length === DRAGON_COUNT) {
+				continue;
+			}
+		}
+		if (card.special!=undefined) {
+			if (card.slot.type === 'spare') {
+				var slot = (card.slot.left-46)/152;
+				c.spare[slot] = {
+					type: 'special',
+					color: card.special.small,
+				};
+			} else {
+				var slot = (card.slot.left-46)/152;
+				var depth = (card.element.offset().top-282)/30;
+				c.tray[slot][depth] = {
+					type: 'special',
+					color: card.special.small,
+				};
+			}
+		} else {
+			if (card.slot.type === 'spare') {
+				var slot = (card.slot.left-46)/152;
+				c.spare[slot] = {
+					type: 'number',
+					color: card.suit.small,
+					value: card.value,
+				};
+			} else {
+				var slot = (card.slot.left-46)/152;
+				var depth = (card.element.offset().top-282)/30;
+				c.tray[slot][depth] = {
+					type: 'number',
+					color: card.suit.small,
+					value: card.value,
+				};
+			}
+		}
+	}
+	return c;
+}
