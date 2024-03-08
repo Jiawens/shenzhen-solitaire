@@ -646,7 +646,75 @@ function onFieldUpdated() {
 		}
 		$('#hint').off('click');
 		$('#hint').click(function () {
-			console.log(event);
+			console.log(event.data);
+			var next_step = event.data[event.data.length - 2];
+			console.log("Performing:" + next_step);
+			if(next_step.startsWith('collect_dragon')) {
+				var b;
+				if(next_step.endsWith('green')) {
+					b=DRAGON_BTNS[1];
+				} else if(next_step.endsWith('red')) {
+					b=DRAGON_BTNS[0];
+				} else if(next_step.endsWith('white')) {
+					b=DRAGON_BTNS[2];
+				}
+				var i;
+				var list = getSpecialCards(b.type);
+
+				var openSlot;
+				for (i = 0; i < SLOTS.SPARE.length; i++) {
+					var set = SLOTS.SPARE[i].cards;
+					// TODO: if any spare slot already has this dragon, go to that one instead.
+					if (set.length >= DRAGON_COUNT && set[0].special == b.type) {
+						return false;
+					}
+
+					if (set.length === 0 || set[0].special == b.type && set.length < DRAGON_COUNT) {
+						openSlot = SLOTS.SPARE[i];
+						break;
+					}
+				}
+
+				if (list.length > 0 && openSlot !== undefined) {
+					for (i = 0; i < list.length; i++) {
+						setTimeout(
+							function (card, slot, depth) {
+								card.element.addClass(cardBacking());
+								tweenCard(card, slot, depth,);
+							},
+							i * 75,
+							list[i], openSlot, openSlot.cards.length
+						);
+					}
+					setTimeout(
+						function (selector, imgComplete) {
+							$(selector)
+								.css('background-image', 'url(\'' + imgComplete + '\')')
+								.data('complete', true);
+							balanceCards();
+						},
+						list.length * 75, b.selector, b.imgComplete
+					);
+					setTimeout(onFieldUpdated, list.length * 75 + CARD_ANIMATION_SPEED);
+				}
+			} else if(next_step.startsWith('tt')) {
+				for(var i = Number(next_step[7])-1; i >=0; i--) {
+					tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1-i],
+						SLOTS.TRAY[Number(next_step[5])],
+						SLOTS.TRAY[Number(next_step[5])].cards.length);
+				}
+				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
+			} else if(next_step.startsWith('st')) {
+				tweenCard(SLOTS.SPARE[Number(next_step[3])].cards[0],
+					SLOTS.TRAY[Number(next_step[5])],
+					SLOTS.TRAY[Number(next_step[5])].cards.length);
+				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
+			} else if(next_step.startsWith('ts')) {
+				tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1],
+					SLOTS.SPARE[Number(next_step[5])],
+					0);
+				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
+			}
 			$('#hint').hide();
 		});
 		$('#hint').show();
