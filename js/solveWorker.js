@@ -398,6 +398,9 @@ self.onmessage = function(e) {
             cost: 0,
             parent: undefined
         });
+        if(this.remainings() === 0) {
+            return [];
+        }
         while(count--) {
             var lowest_index = openList.length-1;
             var lowest_cost = openList[lowest_index].cost + openList[lowest_index].node.state.remainings();
