@@ -1,0 +1,43 @@
+html {
+    cursor: url(../assets/cursor_normal.png) 38 38, default;
+}
+
+@media (min-width: 1279px) {
+    body {
+        background-image: url(../assets/window.png);
+    }
+}
+
+#board {
+    background-image: url(../solitaire/table_large.png);
+}
+
+.card {
+    background-image: url(../solitaire/card_front.png);
+}
+
+.card-reverse {
+    background-image: url(../solitaire/card_back.png);
+}
+.card-reverse.grand_dragon {
+	background-image: url(../assets/card_back_upgrade.png);
+}
+.card-reverse.grand_dragon.grand_dragon_2 {
+	background-image: url(../assets/card_back_upgrade_200.png)
+}
+
+button, .btn-dragon, .bottom-button, .bottom-button * {
+	cursor: url(../assets/cursor_point.png) 38 38, pointer;
+}
+
+.bottom-button {
+	background-image: url(../assets/button_bottom.png);
+}
+
+.bottom-button:hover {
+	background-image: url(../assets/button_bottom_hover.png);
+}
+
+.info-left-text {
+	background-image: url(../solitaire/win_count.png);
+}
