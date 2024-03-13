@@ -635,6 +635,8 @@ function onFieldUpdated() {
 		}
 	}
 
+	$('#hint').hide();
+
 	if (solveWorker != undefined) {
 		solveWorker.terminate();
 	}
