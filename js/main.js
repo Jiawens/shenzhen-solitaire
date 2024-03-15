@@ -25,6 +25,8 @@ var CARD_STACK_GAP = 30;
  */
 var currentSeed;
 
+var THEME = getUrlParameters('theme');
+
 var bambooWhiteToGreen = 'sepia(100%) saturate(10000%) hue-rotate(63deg) brightness(.35)';
 
 var SUITS = {
@@ -220,8 +222,8 @@ jQuery.fn.visibilityToggle = function () {
  * @return {Card} {element: HTMLElement, value: Integer, suit: SUIT}
  */
 function createCard(value, suit) {
-	var smallImg = 'solitaire/small_icons/' + suit.small + '.png';
-	var largeImg = 'solitaire/large_icons/' + suit.prefix_large + '_' + value + '.png';
+	var smallImg = THEME+'/small_icons/' + suit.small + '.png';
+	var largeImg = THEME+'/large_icons/' + suit.prefix_large + '_' + value + '.png';
 	var card = $('<div class="card card-numbered nickardson card-' + suit.small + ' card-' + value + '">' +
 		'<div class="card-count-a"></div>' +
 		'<div class="card-count-b"></div>' +
@@ -258,8 +260,8 @@ function createCard(value, suit) {
  * @return {Card}
  */
 function createSpecialCard(special) {
-	var smallImg = 'solitaire/small_icons/' + special.small + '.png';
-	var largeImg = 'solitaire/large_icons/' + special.large + '.png';
+	var smallImg = THEME+'/small_icons/' + special.small + '.png';
+	var largeImg = THEME+'/large_icons/' + special.large + '.png';
 	var card = $('<div class="card card-special card-' + special.equivalentSuit + '">' +
 		'<div class="card-logo-a"></div>' +
 		'<div class="card-logo-b"></div>' +
@@ -518,23 +520,23 @@ function isDragonReady(type) {
 var DRAGON_BTNS = [{
 	type: SPECIAL.DRAGON_RED,
 	selector: '#btn_dragon_red',
-	imgNone: 'solitaire/button_red_up.png',
-	imgReady: 'solitaire/button_red_active.png',
-	imgComplete: 'solitaire/button_red_down.png',
+	imgNone: THEME+'/button_red_up.png',
+	imgReady: THEME+'/button_red_active.png',
+	imgComplete: THEME+'/button_red_down.png',
 },
 {
 	type: SPECIAL.DRAGON_GREEN,
 	selector: '#btn_dragon_green',
-	imgNone: 'solitaire/button_green_up.png',
-	imgReady: 'solitaire/button_green_active.png',
-	imgComplete: 'solitaire/button_green_down.png',
+	imgNone: THEME+'/button_green_up.png',
+	imgReady: THEME+'/button_green_active.png',
+	imgComplete: THEME+'/button_green_down.png',
 },
 {
 	type: SPECIAL.DRAGON_WHITE,
 	selector: '#btn_dragon_white',
-	imgNone: 'solitaire/button_white_up.png',
-	imgReady: 'solitaire/button_white_active.png',
-	imgComplete: 'solitaire/button_white_down.png',
+	imgNone: THEME+'/button_white_up.png',
+	imgReady: THEME+'/button_white_active.png',
+	imgComplete: THEME+'/button_white_down.png',
 }
 ];
 
@@ -1096,6 +1098,20 @@ $(document).ready(function () {
 	}
 	updateWinCount();
 
+    var head = document.getElementsByTagName('head')[0];
+	
+	var link_theme_css = document.createElement('link');
+    link_theme_css.type = 'text/css';
+    link_theme_css.rel = 'stylesheet';
+    link_theme_css.href = 'css/'+THEME+'.css';
+    head.appendChild(link_theme_css);
+
+	var link_favicon = document.createElement('link');
+	link_favicon.type='image/x-icon';
+	link_favicon.rel='icon';
+	link_favicon.href=THEME+'/favicon.ico';
+	head.appendChild(link_favicon);
+
 	var board = $('#cards');
 	populateSlots(SLOTS, board);
 
@@ -1223,7 +1239,7 @@ $(document).ready(function () {
 		}
 	});
 
-	music = new Audio("solitaire/Solitaire.ogg");
+	music = new Audio(THEME+"/Solitaire.ogg");
 	music.loop = true;
 	$(music).on('canplay', function() {
 		$('#playMusicButton').show();
@@ -1235,6 +1251,17 @@ $(document).ready(function () {
 
 	$('html').keydown(function () { }); // UI breakpoint for debugging in Chrome
 });
+
+function getUrlParameters(variable) {
+	var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+        var pair = vars[i].split("=");
+        if(pair[0] == variable) {
+			return pair[1];
+		}
+    }
+}
 
 function getCurrentState() {
 	var c = {
