@@ -965,6 +965,7 @@ function sortCards(cards) {
  * @param  {Object} seed (optional) The random seed for shuffling the deck. If omitted, the time is used.
  */
 function startNewGame(cards, board, seed) {
+	$('.card').finish();
 	clearInterval(looper);
 	looper = undefined;
 	isInVictory = false;
