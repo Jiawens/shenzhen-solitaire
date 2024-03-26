@@ -6,7 +6,7 @@ var useLocalStorage = (typeof localStorage !== 'undefined');
  * if true, allows placing any card in the Flower slot, and dragons are always movable.
  * @type {Boolean}
  */
-var DEBUG = false;
+var DEBUG = getUrlParameters('debug')==='true';
 
 /**
  * Time in milliseconds cards take moving around
