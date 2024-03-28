@@ -639,91 +639,93 @@ function onFieldUpdated() {
 
 	$('#hint').hide();
 
-	if (solveWorker != undefined) {
-		solveWorker.terminate();
-	}
-	solveWorker = new Worker('js/solveWorker.js');
-
-	solveWorker.onmessage = function (event) {
-		if(event.data.length === 0) {
-			return;
+	if (!(getUrlParameters('hint') === 'false')) {
+		if (solveWorker != undefined) {
+			solveWorker.terminate();
 		}
-		$('#hint').off('click');
-		$('#hint').click(function () {
-			console.log(event.data);
-			var next_step = event.data[event.data.length - 2];
-			console.log("Performing:" + next_step);
-			if(next_step.startsWith('collect_dragon')) {
-				var b;
-				if(next_step.endsWith('green')) {
-					b=DRAGON_BTNS[1];
-				} else if(next_step.endsWith('red')) {
-					b=DRAGON_BTNS[0];
-				} else if(next_step.endsWith('white')) {
-					b=DRAGON_BTNS[2];
-				}
-				var i;
-				var list = getSpecialCards(b.type);
+		solveWorker = new Worker('js/solveWorker.js');
 
-				var openSlot;
-				for (i = 0; i < SLOTS.SPARE.length; i++) {
-					var set = SLOTS.SPARE[i].cards;
-					// TODO: if any spare slot already has this dragon, go to that one instead.
-					if (set.length >= DRAGON_COUNT && set[0].special == b.type) {
-						return false;
+		solveWorker.onmessage = function (event) {
+			if (event.data.length === 0) {
+				return;
+			}
+			$('#hint').off('click');
+			$('#hint').click(function () {
+				console.log(event.data);
+				var next_step = event.data[event.data.length - 2];
+				console.log("Performing:" + next_step);
+				if (next_step.startsWith('collect_dragon')) {
+					var b;
+					if (next_step.endsWith('green')) {
+						b = DRAGON_BTNS[1];
+					} else if (next_step.endsWith('red')) {
+						b = DRAGON_BTNS[0];
+					} else if (next_step.endsWith('white')) {
+						b = DRAGON_BTNS[2];
+					}
+					var i;
+					var list = getSpecialCards(b.type);
+
+					var openSlot;
+					for (i = 0; i < SLOTS.SPARE.length; i++) {
+						var set = SLOTS.SPARE[i].cards;
+						// TODO: if any spare slot already has this dragon, go to that one instead.
+						if (set.length >= DRAGON_COUNT && set[0].special == b.type) {
+							return false;
+						}
+
+						if (set.length === 0 || set[0].special == b.type && set.length < DRAGON_COUNT) {
+							openSlot = SLOTS.SPARE[i];
+							break;
+						}
 					}
 
-					if (set.length === 0 || set[0].special == b.type && set.length < DRAGON_COUNT) {
-						openSlot = SLOTS.SPARE[i];
-						break;
-					}
-				}
-
-				if (list.length > 0 && openSlot !== undefined) {
-					for (i = 0; i < list.length; i++) {
+					if (list.length > 0 && openSlot !== undefined) {
+						for (i = 0; i < list.length; i++) {
+							setTimeout(
+								function (card, slot, depth) {
+									card.element.addClass(cardBacking());
+									tweenCard(card, slot, depth,);
+								},
+								i * 75,
+								list[i], openSlot, openSlot.cards.length
+							);
+						}
 						setTimeout(
-							function (card, slot, depth) {
-								card.element.addClass(cardBacking());
-								tweenCard(card, slot, depth,);
+							function (selector, imgComplete) {
+								$(selector)
+									.css('background-image', 'url(\'' + imgComplete + '\')')
+									.data('complete', true);
+								balanceCards();
 							},
-							i * 75,
-							list[i], openSlot, openSlot.cards.length
+							list.length * 75, b.selector, b.imgComplete
 						);
+						setTimeout(onFieldUpdated, list.length * 75 + CARD_ANIMATION_SPEED);
 					}
-					setTimeout(
-						function (selector, imgComplete) {
-							$(selector)
-								.css('background-image', 'url(\'' + imgComplete + '\')')
-								.data('complete', true);
-							balanceCards();
-						},
-						list.length * 75, b.selector, b.imgComplete
-					);
-					setTimeout(onFieldUpdated, list.length * 75 + CARD_ANIMATION_SPEED);
-				}
-			} else if(next_step.startsWith('tt')) {
-				for(var i = Number(next_step[7])-1; i >=0; i--) {
-					tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1-i],
+				} else if (next_step.startsWith('tt')) {
+					for (var i = Number(next_step[7]) - 1; i >= 0; i--) {
+						tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1 - i],
+							SLOTS.TRAY[Number(next_step[5])],
+							SLOTS.TRAY[Number(next_step[5])].cards.length);
+					}
+					setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED * 2);
+				} else if (next_step.startsWith('st')) {
+					tweenCard(SLOTS.SPARE[Number(next_step[3])].cards[0],
 						SLOTS.TRAY[Number(next_step[5])],
 						SLOTS.TRAY[Number(next_step[5])].cards.length);
+					setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED * 2);
+				} else if (next_step.startsWith('ts')) {
+					tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1],
+						SLOTS.SPARE[Number(next_step[5])],
+						0);
+					setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED * 2);
 				}
-				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
-			} else if(next_step.startsWith('st')) {
-				tweenCard(SLOTS.SPARE[Number(next_step[3])].cards[0],
-					SLOTS.TRAY[Number(next_step[5])],
-					SLOTS.TRAY[Number(next_step[5])].cards.length);
-				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
-			} else if(next_step.startsWith('ts')) {
-				tweenCard(SLOTS.TRAY[Number(next_step[3])].cards[SLOTS.TRAY[Number(next_step[3])].cards.length - 1],
-					SLOTS.SPARE[Number(next_step[5])],
-					0);
-				setTimeout(onFieldUpdated, CARD_ANIMATION_SPEED*2);
-			}
-			$('#hint').hide();
-		});
-		$('#hint').show();
-	};
-	solveWorker.postMessage(JSON.parse(JSON.stringify(getCurrentState())));
+				$('#hint').hide();
+			});
+			$('#hint').show();
+		};
+		solveWorker.postMessage(JSON.parse(JSON.stringify(getCurrentState())));
+	}
 
 	// no more top cards to move, is the field clear?
 	var allGood = true;
