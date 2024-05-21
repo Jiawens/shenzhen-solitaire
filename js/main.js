@@ -374,39 +374,17 @@ function populateSlots(slots, board) {
  */
 function makeDeck() {
 	var cards = [];
-	var s; // 0-2 suit index.
-	var suit; // the actual suit object
+	var suits = [SUITS.BAMBOO, SUITS.CHARACTERS, SUITS.COINS];
 	for (var value = 1; value <= 9; value++) {
-		for (s = 0; s < 3; s++) {
-			switch (s) {
-				case 0:
-					suit = SUITS.BAMBOO;
-					break;
-				case 1:
-					suit = SUITS.CHARACTERS;
-					break;
-				case 2:
-					suit = SUITS.COINS;
-					break;
-			}
-			cards.push(createCard(value, suit));
+		for (var s = 0; s < 3; s++) {
+			cards.push(createCard(value, suits[s]));
 		}
 	}
 
+	suits = [SPECIAL.DRAGON_GREEN, SPECIAL.DRAGON_WHITE, SPECIAL.DRAGON_RED];
 	for (s = 0; s < 3; s++) {
 		for (var i = 0; i < DRAGON_COUNT; i++) {
-			switch (s) {
-				case 0:
-					suit = SPECIAL.DRAGON_GREEN;
-					break;
-				case 1:
-					suit = SPECIAL.DRAGON_WHITE;
-					break;
-				case 2:
-					suit = SPECIAL.DRAGON_RED;
-					break;
-			}
-			cards.push(createSpecialCard(suit));
+			cards.push(createSpecialCard(suits[s]));
 		}
 	}
 
