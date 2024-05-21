@@ -91,112 +91,50 @@ var DRAGON_COUNT = 4;
  */
 var SLOT_TALL = 500;
 
+function createSLOTS() {
+	var SLOTS = {
+		SPARE: [],
+		FLOWER: [],
+		OUT: [],
+		TRAY: []
+	};
+	for (var i = 0; i < 3; i++) {
+		SLOTS.SPARE.push({
+			type: 'spare',
+			top: 18,
+			left: 46 + 152 * i
+		});
+	}
+	SLOTS.FLOWER.push({
+		type: 'flower',
+		fan: "revert",
+		top: 18,
+		left: 614
+	});
+	for (var i = 0; i < 3; i++) {
+		SLOTS.OUT.push({
+			type: 'out',
+			top: 18,
+			left: 806 + 152 * i
+		});
+	}
+	for (var i = 0; i < 8; i++) {
+		SLOTS.TRAY.push({
+			type: 'tray',
+			fan: "normal",
+			top: 282,
+			left: 46 + 152 * i,
+			height: SLOT_TALL
+		});
+	}
+	return SLOTS;
+}
+
 /**
  * Contains groupings of slots, which will have an "element" property added.
  * @type {Object}
  */
-var SLOTS = {
-	SPARE: [
-		{
-			type: 'spare',
-			top: 18,
-			left: 46
-		},
-		{
-			type: 'spare',
-			top: 18,
-			left: 198
-		},
-		{
-			type: 'spare',
-			top: 18,
-			left: 350
-		}
-	],
-	FLOWER: [
-		{
-			type: 'flower',
-			fan: "revert",
-			top: 18,
-			left: 614
-		}
-	],
-	OUT: [
-		{
-			type: 'out',
-			top: 18,
-			left: 806
-		},
-		{
-			type: 'out',
-			top: 18,
-			left: 958
-		},
-		{
-			type: 'out',
-			top: 18,
-			left: 1110
-		}
-	],
-	TRAY: [
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 46,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 198,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 350,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 502,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 654,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 806,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 958,
-			height: SLOT_TALL
-		},
-		{
-			type: 'tray',
-			fan: "normal",
-			top: 282,
-			left: 1110,
-			height: SLOT_TALL
-		}
-	]
-};
+var SLOTS = createSLOTS();
 
 // Audio element for OST
 var music = null;
