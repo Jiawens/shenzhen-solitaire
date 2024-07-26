@@ -3,7 +3,7 @@ self.onmessage = function(e) {
     state.remainings = function() {
         var sum=0;
         for(var i=0;i<this.spare.length;i++) {
-            if (this.spare[i].type === 'number' || this.spare[i].type === 'special') {
+            if (this.spare[i].type === 'number' || this.spare[i].type === 'special' || this.spare[i].type === 'flower') {
                 sum+=1;
             }
         }
@@ -87,7 +87,7 @@ self.onmessage = function(e) {
             var movableTops = [];
             for (var i = 0; i < this.spare.length; i++) {
                 var card = this.spare[i];
-                if (card.type === 'special' && card.color === 'flower') {
+                if (card.type === 'flower') {
                     this.flower = true;
                     this.spare[i] = {
                         type: 'empty',
@@ -110,7 +110,7 @@ self.onmessage = function(e) {
                             slot: 'tray',
                             index: i
                         });
-                    } else if (card.type === 'special' && card.color === 'flower') {
+                    } else if (card.type === 'flower') {
                         this.flower = true;
                         this.tray[i].pop();
                         continue outer;

@@ -1226,17 +1226,29 @@ function getCurrentState() {
 		if (card.special!=undefined) {
 			if (card.slot.type === 'spare') {
 				var slot = (card.slot.left-46)/152;
-				c.spare[slot] = {
-					type: 'special',
-					color: card.special.small,
-				};
+				if (card.special.small === "flower") {
+					c.spare[slot] = {
+						type: 'flower'
+					};
+				} else {
+					c.spare[slot] = {
+						type: 'special',
+						color: card.special.small,
+					};
+				}
 			} else {
 				var slot = (card.slot.left-46)/152;
 				var depth = (card.element.offset().top-282)/30;
-				c.tray[slot][depth] = {
-					type: 'special',
-					color: card.special.small,
-				};
+				if (card.special.small === "flower") {
+					c.tray[slot][depth] = {
+						type: 'flower'
+					};
+				} else {
+					c.tray[slot][depth] = {
+						type: 'special',
+						color: card.special.small,
+					};
+				}
 			}
 		} else {
 			if (card.slot.type === 'spare') {
