@@ -1,5 +1,5 @@
 html {
-    cursor: url(../assets/cursor_normal.png) 38 38, default;
+    cursor: url(../solitaire/cursor_normal.png) 38 38, default;
 }
 
 @media (min-width: 1279px) {
@@ -27,7 +27,7 @@ html {
 }
 
 button, .btn-dragon, .bottom-button, .bottom-button * {
-	cursor: url(../assets/cursor_point.png) 38 38, pointer;
+	cursor: url(../solitaire/cursor_point.png) 38 38, pointer;
 }
 
 .bottom-button {

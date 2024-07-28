@@ -44,6 +44,12 @@ do
     cp "$1"/textures/solitaire/large_icons/${file}.png $SCRIPT_DIR/large_icons/
 done
 
+cursor_icons="normal point"
+for cursor in $cursor_icons
+do
+    cp "$1"/textures/cursor_${cursor}.png $SCRIPT_DIR/
+done
+
 cp "$1"/music/Solitaire.ogg $SCRIPT_DIR/
 
 echo "Done."
