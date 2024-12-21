@@ -1093,7 +1093,7 @@ $(document).ready(function () {
 	});
 
 	$('.card').draggable({
-		'cursor': 'url(assets/cursor_normal.png) 40 40, default',
+		'cursor': 'url(solitaire/cursor_normal.png) 40 40, default',
 		'revert': 'invalid',
 		'revertDuration': 0,
 		helper: function () {
